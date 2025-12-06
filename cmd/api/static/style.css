@@ -1,0 +1,243 @@
+:root
+{
+    --bela: #f0f2f5;
+    --crna: #2c2c2c;
+    --plava: #0051a2;
+}
+
+*
+{
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    background-color: var(--bela);
+}
+
+.container
+{
+    display: grid;
+    grid-template-columns: 20% auto 20%;
+    grid-template-rows: 15% auto 15%;
+    width: 100vw;
+    height: 100vh;
+}
+
+.container > div
+{
+    border: 1px solid red;
+}
+
+.naslov
+{
+    display: flex;
+    justify-content: center;
+}
+
+.naslov img
+{
+    height: 100%;
+}
+
+#igra
+{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    padding: 1%;
+    border: none;
+}
+
+#igra > .red
+{
+    padding: 0.42vh;
+    height: 100%;
+    max-width: 60vw;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+#igra .polje
+{
+    margin-inline: 0.5vw;
+    border: 1px solid var(--crna);
+    border-radius: 100%;
+    aspect-ratio: 1 / 1;
+    height: 100%;
+    text-align: center;
+}
+
+#igra .polje:hover
+{
+    cursor: pointer;
+    border: 2px solid var(--crna);
+}
+
+.start-podesavanja
+{
+    padding: 5%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+}
+
+.start-podesavanja > *
+{
+    transition: position 0.5s;
+}
+
+.start-podesavanja > span
+{
+    padding: 3%;
+    border: 2px solid var(--plava);
+    border-radius: 5px;
+    font-size: xx-large;
+    width: 40%;
+    background-color: transparent;
+    color: var(--plava);
+    transition: all 0.3s;
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+}
+
+.start-podesavanja > span::after
+{
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 81, 162, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.start-podesavanja > span:hover
+{
+    background-color: var(--plava);
+    color: var(--bela);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 81, 162, 0.3);
+}
+
+.start-podesavanja > span::after:hover
+{
+    width: 300px;
+    height: 300px;
+}
+
+.start-podesavanja > input
+{
+    padding-block: 4%;
+    padding-inline: 3%;
+    width: 40%;
+    border: 2px solid var(--plava);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease, height 0.3s ease;
+    display: none;
+}
+
+.start-podesavanja > input.vidljiv
+{
+    opacity: 1;
+    display: inline-block;
+}
+
+#how-to-play
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#how-to-play img
+{
+    height: 80%;
+    cursor: pointer;
+}
+
+#how-to-play img:hover
+{
+    height: 82%;
+}
+
+#how-to-play-prikaz
+{
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    width: 100vw;
+}
+
+.how-to-play-izlaz
+{
+    display: flex;
+    flex-direction: row-reverse;
+    height: 10vh;
+}
+
+.how-to-play-izlaz img
+{
+    height: 4vh;
+    margin: 3vh;
+}
+
+.how-to-play-izlaz img:hover
+{
+    cursor: pointer;
+    height: calc(4vh + 2%);
+}
+
+.how-to-play-slike
+{
+    display: flex;
+    flex-direction: column;
+    flex-direction: column;
+    align-items: center;
+    padding-block: 0;
+    height: 90vh;
+}
+
+.how-to-play-slika-container
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60vh;
+    max-width: 60vw;
+}
+
+.how-to-play-slika-kontrole
+{
+    height: 20vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+
+.how-to-play-slika-kontrole img
+{
+    height: 100%;
+}
+
+.how-to-play-slika-kontrole img:hover
+{
+    cursor: pointer;
+}
+
+.how-to-play-slika-levo
+{
+    transform: scaleX(-1);
+}
