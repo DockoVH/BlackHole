@@ -1,0 +1,25 @@
+services:
+  redis:
+    container_name: blackhole_redis
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_podaci:/data
+    networks:
+      - mreza
+    restart: unless-stopped
+
+  blackhole:
+    container_name: blackhole_api
+    build: .
+    depends_on:
+      - redis
+    networks:
+      - mreza
+    ports:
+      - 8080:8080
+
+networks:
+  mreza:
+    driver: bridge

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS Projekat</title>
+    <title>BlackHole</title>
     <link rel="stylesheet" href="static/style.css"/>
 </head>
 <body>
@@ -32,18 +32,44 @@
         </div>
         <div>4</div>
         <div id="igra">
-            <div class="start-podesavanja">
+            <div class="igra-prikaz"></div>
+            <div class="start-podesavanja vidljiv">
                 <span class="nasumicna-igra">Nasumična igra</span>
                 <span class="unesi-kod-span">Unesite kod</span>
-                <input type="text">
                 <span>Istorija igara</span>
             </div>
+            <div id="unesi-kod-dialog-wrapper">
+                <div class="unesi-kod-dialog">
+                    <button class="zatvori-unos-koda-dugme">X</button>
+                    <h1>Unesite kod</h1>
+                    <div class="unesi-kod-forma">
+                        <input id="1" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
+                        <input id="2" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
+                        <input id="3" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
+                        <input id="4" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
+                    </div>
+                    <div class="zapocni-igru-kod-dugme-container">
+                        <button id="zapocni-igru-kod-dugme" disabled="true">Započni igru</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>6</div>
+        <div id="cet">
+            <div class="posalji-poruku-container">
+                <input type="text" name="cet">
+                <button class="posalji-poruku-dugme">Pošalji</button>
+            </div>
+            <div class="poruke-container">
+                <div class="poruka">
+                    
+                </div>
+            </div>
+        </div>
         <div>7</div>
         <div>8</div>
         <div>9</div>
     </div>
     <script type="module" src="static/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </body>
 </html>

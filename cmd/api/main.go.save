@@ -1,0 +1,25 @@
+cd ~/Kod/BlackHole//package main nano 
+~/Kod/BlackHole//internal/poruka/poruka.go import (
+	"log"
+	"context"
+
+	"BlackHole/internal/server"
+
+	"github.com/redis/go-redis/v9"
+)
+
+func main() {
+	redisDB := redis.NewClient(&redis.Options {
+		Addr: "redis:6379",
+		Password: "",
+		DB: 0,
+	})
+
+	redisDB.Del(context.Background(), "sve-sobe")
+
+	server, port := server.NoviServer()
+	log.Printf("Server osluškuje na adresi: %v\n", port)
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal("ListenAndServe greška: ", err)
+	}
+}
