@@ -4,28 +4,32 @@ export class Igra
     {
         this.polja = [[1, 2, 3, 4, 5, 6], 10]
         this.igraContainer = container
-        this.igraPrikazContainer = container.querySelector('.igra-prikaz')
-        this.startPodesavanjaContainer = container.querySelector('.start-podesavanja')
+        this.igraPrikazContainer = document.getElementById('igra-prikaz')
+        this.startPodesavanjaContainer = document.getElementById('start-podesavanja')
         this.cetContainer = document.getElementById('cet')
         this.socket = null
         this.kod = ''
+
+        this.crtajPolja()
     }
 
     crtajPolja()
     {
+        const redCSSKlase = 'p-3 h-full flex flex-row flex-nowrap justify-center '
+        const poljeCSSKlase = 'mx-3 border-1 border-black rounded-full aspect-square h-full text-center cursor-pointer hover:border-2'
+
         let idxPolja = 0
 
-        this.igraPrikazContainer.classList.add('vidljiv')
         this.igraPrikazContainer.innerHTML = ''
 
         this.polja[0].forEach(p => {
             const red = document.createElement('div')
-            red.classList.add('red')
+            red.className = redCSSKlase
 
             for (let i = 0; i < p; i++)
             {
                 const polje = document.createElement('div')
-                polje.classList.add('polje')
+                polje.className = poljeCSSKlase
                 polje.id = `polje-${idxPolja++}`
                 polje.onclick = (e) => {
                     const poljeIdx = e.target.id
@@ -44,14 +48,14 @@ export class Igra
         this.socket = new WebSocket('ws://localhost:8080/ws')
 
         this.socket.onerror = () => {
-            this.startPodesavanjaContainer.classList.add('vidljiv')
-            this.igraPrikazContainer.classList.remove('vidljiv')
+            this.startPodesavanjaContainer.classList.toggle('hidden', false)
+            this.igraPrikazContainer.classList.toggle('hidden', true)
         }
 
         this.socket.onclose = () => {
-            this.startPodesavanjaContainer.classList.add('vidljiv')
-            this.igraPrikazContainer.classList.remove('vidljiv')
-            this.cetContainer.classList.remove('vidljiv')
+            this.startPodesavanjaContainer.classList.toggle('hidden', false)
+            this.igraPrikazContainer.classList.toggle('hidden', true)
+            this.cetContainer.classList.toggle('invisible', true)
         }
 
         this.socket.onopen = () => {
@@ -59,9 +63,9 @@ export class Igra
 
             this.crtajPolja()
 
-            this.startPodesavanjaContainer.classList.remove('vidljiv')
-            this.igraPrikazContainer.classList.add('vidljiv')
-            this.cetContainer.classList.add('vidljiv')
+            this.startPodesavanjaContainer.classList.toggle('hidden', true)
+            this.igraPrikazContainer.classList.toggle('hidden', false)
+            this.cetContainer.classList.toggle('invisible', false)
 
             this.socket.send(JSON.stringify({Tip: 'Dodaj_U_Sobu', Sadrzaj: this.kod}))
         }
@@ -73,7 +77,7 @@ export class Igra
 
         const cetInit = () => {
             const porukaInput = this.cetContainer.querySelector('input')
-            const posaljiDugme = this.cetContainer.querySelector('.posalji-poruku-dugme')
+            const posaljiDugme = document.getElementById('posalji-poruku-dugme')
 
             posaljiDugme.onclick = () => {
                 if (porukaInput.value !== '')

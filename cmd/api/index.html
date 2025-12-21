@@ -6,68 +6,235 @@
     <title>BlackHole</title>
     <link rel="stylesheet" href="static/style.css"/>
 </head>
-<body>
-    <div id="how-to-play-prikaz">
-        <div class="how-to-play-izlaz">
-            <img class="how-to-play-izlaz-dugme" src="static/slike/X.png" alt="X">
+<body class="bg-(--bela)">
+    <div id="how-to-play-prikaz" class="absolute top-0 left-0 hidden z-10 w-screen h-screen">
+        <div class="flex flex-row-reverse h-15">
+            <img id="how-to-play-izlaz" src="static/slike/X.png" alt="X" 
+                class="h-10 m-4 hover:h-11 cursor-pointer">
         </div>
-        <div class="how-to-play-slike">
-            <div class="how-to-play-slika-container">
-                <img src="static/slike/how_to_play_1.png" alt="How to play?" class="how-to-play-slika">
+        <div id="how-to-play-slike" class="flex flex-col items-center">
+            <div class="flex justify-center items-center h-[60vh] max-w-[60vw]">
+                <img src="static/slike/how_to_play_1.png" alt="How to play?" id="how-to-play-slika" class="size-full">
             </div>
-            <div class="how-to-play-slika-kontrole">
-                <img src="static/slike/strelica.png" alt="Levo" class="how-to-play-slika-levo">
-                <img src="static/slike/strelica.png" alt="Desno" class="how-to-play-slika-desno">
+            <div class="flex flex-row w-[60vw]">
+                <div class="h-[22vh] flex justify-center items-center w-full">
+                    <img src="static/slike/strelica.png" alt="Prethodna" id="how-to-play-slika-levo" class="h-95/100 hover:cursor-pointer hover:h-full scale-[-1]">
+                </div>
+                <div class="h-[22vh] flex justify-center items-center w-full">
+                    <img src="static/slike/strelica.png" alt="Sledeća" id="how-to-play-slika-desno" class="h-95/100 hover:cursor-pointer hover:h-full">
+                </div>
             </div>
         </div>
     </div>
-    <div id="grid" class="container">
-        <div>1</div>
-        <div class="naslov">
-            <img src="static/slike/naslov.png" alt="Black Hole">
-        </div>
-        <div id="how-to-play">
-            <img src="static/slike/upitnik.png" alt="How to play?">
-            <span>How to play?</span>
-        </div>
-        <div>4</div>
-        <div id="igra">
-            <div class="igra-prikaz"></div>
-            <div class="start-podesavanja vidljiv">
-                <span class="nasumicna-igra">Nasumična igra</span>
-                <span class="unesi-kod-span">Unesite kod</span>
-                <span>Istorija igara</span>
+
+    <div id="login-prikaz" class="hidden absolute top-0 left-0 z-10 w-screen h-screen bg-radial-[at_50%_50%] from-gray-400 via-blue-400 to-blue-600 flex justify-center items-center">
+        <div class="relative flex-col w-120 h-auto bg-(--bela) rounded-lg border-1 border-gray-200 shadow-xl py-7 px-20">
+            <div id="login-izadji" class="absolute top-0 right-6 text-[500%] text-blue-600 cursor-pointer">˟</div>
+            <div class="text-center text-[300%]">Prijavi se</div>
+            <div class="relative mt-5 mb-1">
+                <input id="login-input-username" required autocomplete="off" type="text" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
+                <label id="login-label-username" class="absolute top-1/2 left-[15px] -translate-y-1/2 text-gray-500 cursor-text
+                            peer-focus:top-0 peer-focus:left-[15px] peer-focus:px-2 peer-focus:bg-(--bela)
+                            peer-valid:top-0 peer-valid:left-[15px] peer-valid:px-2 peer-valid:bg-(--bela)">
+                    Korisničko ime
+                </label>
             </div>
-            <div id="unesi-kod-dialog-wrapper">
-                <div class="unesi-kod-dialog">
-                    <button class="zatvori-unos-koda-dugme">X</button>
-                    <h1>Unesite kod</h1>
-                    <div class="unesi-kod-forma">
-                        <input id="1" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
-                        <input id="2" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
-                        <input id="3" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
-                        <input id="4" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off">
+            <div id="login-greska-username" class="hidden text-red-600 text-wrap">
+                Unesite gorisničko ime! <br>
+                Korisničko ime mora da sadrži između 4 i 12 karaktera!
+            </div>
+            <div class="relative mt-5 mb-1">
+                <input id="login-input-password" required autocomplete="off" type="password" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
+                <label id="login-label-password" class="absolute top-1/2 left-[15px] -translate-y-1/2 text-gray-500 cursor-text
+                            peer-focus:top-0 peer-focus:left-[15px] peer-focus:px-2 peer-focus:bg-(--bela)
+                            peer-valid:top-0 peer-valid:left-[15px] peer-valid:px-2 peer-valid:bg-(--bela)">
+                    Lozinka
+                </label>
+            </div>
+            <input id="login-prikazi-lozinku" type="checkbox">
+            <label class="text-gray-600">Prikaži lozinku</label>
+            <div id="login-greska-password" class="hidden text-red-600 text-wrap">
+                Unesite validnu lozinku! <br>
+                Lozinka mora da sadrži najmanje 8 karaktera, jedno malo slovo, jedno veliko slovo, jedan broj
+                i jedan specijalan karakter (!, , @, #, $, %, &)!
+            </div>
+            <div id="login-prijavi-se-dugme" class="bg-blue-500 rounded-lg p-5 mt-5 text-center text-white text-xl cursor-pointer">
+                Prijavi se
+            </div>
+            <div class="mt-1 text-gray-600">
+                Nemate nalog?
+                <span id="login-registruj-se-dugme" class="text-blue-600 cursor-pointer">
+                    Registrujte se!
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="signup-prikaz" class="hidden absolute top-0 left-0 z-10 w-screen h-screen bg-radial-[at_50%_50%] from-gray-400 via-blue-400 to-blue-600 flex justify-center items-center">
+        <div class="relative flex-col w-120 h-auto bg-(--bela) rounded-lg border-1 border-gray-200 shadow-xl py-7 px-20">
+            <div id="signup-izadji" class="absolute top-0 right-6 text-[500%] text-blue-600 cursor-pointer">˟</div>
+            <div class="text-center text-[300%]">Registruj se</div>
+            <div class="relative mt-5 mb-1">
+                <input id="signup-input-username" required autocomplete="off" type="text" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
+                <label id="signup-label-username" class="absolute top-1/2 left-[15px] -translate-y-1/2 text-gray-500 cursor-text
+                            peer-focus:top-0 peer-focus:left-[15px] peer-focus:px-2 peer-focus:bg-(--bela)
+                            peer-valid:top-0 peer-valid:left-[15px] peer-valid:px-2 peer-valid:bg-(--bela)">
+                    Korisničko ime
+                </label>
+            </div>
+            <div id="signup-greska-username" class="hidden text-red-600 text-wrap">
+                Unesite validno korisničko ime! <br>
+                Korisničko ime mora da sadrži između 4 i 12 karaktera!
+            </div>
+            <div class="relative mt-5 mb-1">
+                <input id="signup-input-password" required autocomplete="off" type="password" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
+                <label id="signup-label-password" class="absolute top-1/2 left-[15px] -translate-y-1/2 text-gray-500 cursor-text
+                            peer-focus:top-0 peer-focus:left-[15px] peer-focus:px-2 peer-focus:bg-(--bela)
+                            peer-valid:top-0 peer-valid:left-[15px] peer-valid:px-2 peer-valid:bg-(--bela)">
+                    Lozinka
+                </label>
+            </div>
+            <input id="signup-prikazi-lozinku" type="checkbox">
+            <label class="text-gray-600">Prikaži lozinku</label>
+            <div id="signup-greska-password" class="hidden text-red-600 text-wrap">
+                Unesite validnu lozinku! <br>
+                Lozinka mora da sadrži najmanje 8 karaktera, jedno malo slovo, jedno veliko slovo, jedan broj
+                i jedan specijalan karakter (!, , @, #, $, %, &)!
+            </div>
+            <div class="relative mt-1 mb-1">
+                <input id="signup-input-password-ponovi" required autocomplete="off" type="password" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
+                <label id="signup-label-password-ponovi" class="absolute top-1/2 left-[15px] -translate-y-1/2 text-gray-500 cursor-text
+                            peer-focus:top-0 peer-focus:left-[15px] peer-focus:px-2 peer-focus:bg-(--bela)
+                            peer-valid:top-0 peer-valid:left-[15px] peer-valid:px-2 peer-valid:bg-(--bela)">
+                    Ponovite lozinku
+                </label>
+            </div>
+            <input id="signup-prikazi-lozinku-ponovi" type="checkbox">
+            <label class="text-gray-700">Prikaži lozinku</label>
+            <div id="signup-greska-password-ponovi" class="hidden text-red-600 text-wrap">
+                Lozinke se ne poklapaju!
+            </div>
+
+            <div class="flex flex-col mt-5">
+                <div class="text-gray-700">
+                    Datum rođenja
+                </div>
+                <input id="signup-datum-rodjenja" type="date" class="border-1 border-blue-600 rounded-lg p-4 mt-1 text-gray-600">
+                <div id="signup-greska-datum-rodjenja" class="hidden text-red-600 text-wrap mt-1">
+                    Unesite datum rođenja!
+                </div>
+            </div>
+
+            <div id="signup-registruj-se-dugme" class="bg-blue-500 rounded-lg p-5 mt-5 text-center text-white text-xl cursor-pointer">
+                Registruj se
+            </div>
+            <div class="mt-1 text-gray-700">
+                Već imate nalog?
+                <span id="signup-prijavi-se-dugme" class="text-blue-600 cursor-pointer">
+                    Prijavi se!
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-10 grid-rows-10 w-screen h-screen text-center">
+        <div class="col-span-10 row-span-2 flex flex-row drop-shadow-xl/4 pb-2 border-b-1 bordder-gray-400">
+            <div class="w-1/5">1</div>
+            <div class="flex justify-center w-3/5">
+                <img src="static/slike/naslov.png" alt="Black Hole">
+            </div>
+            <div id="how-to-play" class="flex flex-col justify-center items-center w-1/5">
+                <div class="flex justify-center items-center h-4/5">
+                    <img src="static/slike/upitnik.png" alt="How to play?" class="h-95/100 cursor-pointer hover:h-full">
+                </div>
+                <span class="h-1/5">How to play?</span>
+            </div>
+        </div>
+
+        <div class="col-span-2 row-span-7">
+            <div id="start-prijavi-se" class="text-center text-(--bela) text-xl cursor-pointer border-1 border-blue-600 rounded-lg mx-10 my-5 py-4 bg-blue-600">Prijavi se</div>
+            <div id="start-registruj-se" class="text-center text-(--bela) text-xl cursor-pointer border-1 border-blue-600 rounded-lg mx-10 my-5 py-4 bg-blue-600">Registruj se</div>
+        </div>
+
+        <div id="igra" class="col-span-6 row-span-7 border-x-1 border-gray-400">
+            <div id="igra-prikaz" class="flex flex-col flex-nowrap justify-center p-4 h-full hidden">
+
+            </div>
+
+            <div id="start-podesavanja" class="py-15 flex flex-col justify-around items-center h-full">
+                <span id="nasumicna-igra"
+                    class="overflow-hidden p-8 border-2 border-blue-600 rounded-lg text-[xx-large] text-blue-600 w-2/5 transition-all duration-300 relative cursor-pointer text-center bg-transparent
+                            after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-400 after:-z-10
+                            hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
+                    Nasumična igra
+                </span>
+                <span id="unesi-kod-span" 
+                    class="overflow-hidden p-8 border-2 border-blue-600 rounded-lg text-[xx-large] text-blue-600 w-2/5 transition-all duration-300 relative cursor-pointer text-center bg-transparent
+                            after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-400 after:-z-10
+                            hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
+                    Unesite kod
+                </span>
+                <span id="istorija-igara-dugme"
+                    class="overflow-hidden p-8 border-2 border-blue-600 rounded-lg text-[xx-large] text-blue-600 w-2/5 transition-all duration-300 relative cursor-pointer text-center bg-transparent
+                            after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-400 after:-z-10
+                            hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
+                    Istorija igara
+                </span>
+            </div>
+
+            <div id="unesi-kod-dialog-wrapper" class="hidden flex justify-center items-center h-full">
+                <div class="relative w-1/2 border-1 border-blue-600 rounded-lg h-2/5 bg-red-900">
+                    <button id="zatvori-unos-koda-dugme" class="absolute top-1 right-1 border-2 border-blue-600 rounded-full w-7 cursor-pointer">
+                        X
+                    </button>
+                    <h1 class="bg-transparent text-center pt-1 text-blue-600 text-[300%] h-20">
+                        Unesite kod
+                    </h1>
+                    <div class="flex flex-row flex-nowrap justify-evenly bg-blue-100 my-6 h-1/5">
+                        <input id="1" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                        <input id="2" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                        <input id="3" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                        <input id="4" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
                     </div>
-                    <div class="zapocni-igru-kod-dugme-container">
-                        <button id="zapocni-igru-kod-dugme" disabled="true">Započni igru</button>
+                    <div class="flex justify-center items-center bg-transparent h-auto">
+                        <button id="zapocni-igru-kod-dugme" disabled="true"
+                                class="m-6 p-3 border-1 border-blue-600 rounded-lg text-blue-600 transition-all duration-300 relative cursor-pointer text-center bg-transparent
+                                after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-400 after:-z-10
+                                hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
+                            Započni igru
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="cet">
-            <div class="posalji-poruku-container">
-                <input type="text" name="cet">
-                <button class="posalji-poruku-dugme">Pošalji</button>
+
+        <div id="cet" class="col-span-2 row-span-7 flex flex-col-reverse invisible">
+            <div class="flex flex-row flex-nowrap p-2">
+                <input type="text" name="cet" class="w-4/5 border-1 border-blue-600 rounded-l-lg">
+                <button id="posalji-poruku-dugme"
+                        class="overflow-hidden border-1 border-blue-600 rounded-r-lg text-blue-600 transition-all duration-200 relative cursor-pointer text-center bg-transparent w-1/5
+                                after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-200 after:-z-10
+                                hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
+                    Pošalji
+                </button>
             </div>
-            <div class="poruke-container">
-                <div class="poruka">
+            <div class="mb-2">
+                <div class="text-center text-wrap border-1 border-blue-600 rounded-lg p-2 mx-2 mb-2">
+                    asdasjkldjkl
+                </div>
+                <div class="text-center text-wrap border-1 border-blue-600 rounded-lg p-2 mx-2">
                     
                 </div>
             </div>
         </div>
-        <div>7</div>
-        <div>8</div>
-        <div>9</div>
+
+        <div class="col-span-2 row-span-1 border-t-1 border-t-gray-400">7</div>
+        <div class="col-span-6 row-span-1 border-t-1 border-t-gray-400">8</div>
+        <div class="col-span-2 row-span-1 border-t-1 border-t-gray-400">9</div>
     </div>
     <script type="module" src="static/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>

@@ -7,16 +7,21 @@ export class StartPodesavanja
 
     init(container)
     {   
-        const unesiKodSpan = container.querySelector('.unesi-kod-span')
-        const nasumicnaIgra = container.querySelector('.nasumicna-igra')
+        const unesiKodSpan = document.getElementById('unesi-kod-span')
+        const nasumicnaIgra = document.getElementById('nasumicna-igra')
         const unesiKodDialog = document.getElementById('unesi-kod-dialog-wrapper')
-        const zatvoriUnosKodaDugme = unesiKodDialog.querySelector('.zatvori-unos-koda-dugme')
+        const zatvoriUnosKodaDugme = document.getElementById('zatvori-unos-koda-dugme')
         const kodInputs = unesiKodDialog.querySelectorAll('input')
         const zapocniIgruKodDugme = document.getElementById('zapocni-igru-kod-dugme')
+        const istorijaIgaraDugme = document.getElementById('istorija-igara-dugme')
+        const prijaviSe = document.getElementById('start-prijavi-se')
+        const registrujSe = document.getElementById('start-registruj-se')
+
+        const loginPrikaz = document.getElementById('login-prikaz')
 
         zatvoriUnosKodaDugme.onclick = () => {
-            container.classList.add('vidljiv')
-            unesiKodDialog.classList.remove('vidljiv')
+            container.classList.toggle('hidden', false)
+            unesiKodDialog.classList.toggle('hidden', true)
         }
 
         kodInputs.forEach((p, idx) => {
@@ -58,13 +63,27 @@ export class StartPodesavanja
         }
 
         unesiKodSpan.onclick = () => {
-            container.classList.remove('vidljiv')
-            unesiKodDialog.classList.add('vidljiv')
+            container.classList.toggle('hidden', true)
+            unesiKodDialog.classList.toggle('hidden', false)
         }
 
         nasumicnaIgra.onclick = () => {
             this.igra.kod = ''
             this.igra.socketInit()
+        }
+
+        istorijaIgaraDugme.onclick = () => {
+            loginPrikaz.classList.toggle('hidden', false)
+        }
+
+        prijaviSe.onclick = () => {
+            const login = document.getElementById('login-prikaz')
+            login.classList.toggle('hidden', false)
+        }
+
+        registrujSe.onclick = () => {
+            const signup = document.getElementById('signup-prikaz')
+            signup.classList.toggle('hidden', false)
         }
     }
 }

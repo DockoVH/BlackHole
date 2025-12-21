@@ -8,10 +8,10 @@ export class HowToPlay
 
     init(container)
     {
-        const prethodnaSlikaDugme = container.querySelector('.how-to-play-slika-levo')
-        const sledecaSlikaDugme = container.querySelector('.how-to-play-slika-desno')
-        const howToPlayIzlazDugme = container.querySelector('.how-to-play-izlaz-dugme')
-        const howToPlaySlika = container.querySelector('.how-to-play-slika')
+        const prethodnaSlikaDugme = document.getElementById('how-to-play-slika-levo')
+        const sledecaSlikaDugme = document.getElementById('how-to-play-slika-desno')
+        const howToPlayIzlazDugme = document.getElementById('how-to-play-izlaz')
+        const howToPlaySlika = document.getElementById('how-to-play-slika')
 
         prethodnaSlikaDugme.onclick = () => {
             this.slikaIdx--
@@ -26,7 +26,7 @@ export class HowToPlay
         }
 
         howToPlayIzlazDugme.onclick = () => {
-            container.style.visibility = 'hidden'
+            container.classList.toggle('hidden', true)
             this.slikaIdx = 0
             howToPlaySlika.src = `static/slike/how_to_play_${this.slikaIdx + 1}.png`
         }
