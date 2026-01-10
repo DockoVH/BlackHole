@@ -14,20 +14,24 @@ import (
 	"BlackHole/internal/poruka"
 )
 
+type CetPoruka struct {
+	Vreme time.Time
+	IgracUsername string
+	Sadrzaj string
+}
+
+type Potez struct {
+	Vreme time.Time
+	IgracUsername string
+	IndeksPolja int
+}
+
 type Igrac struct {
-	UUID string `json:"uuid"`
-	Ime string `json:"ime"`
+	Username string `json:"username"`
+	DatumRodjenja time.Time `json:"datumRodjenja"`
 	Conn *websocket.Conn `json:"-"`
 	cetPubSub *redis.PubSub
 	sobaUUID string
-}
-
-func NoviIgrac(c *websocket.Conn) *Igrac {
-	return &Igrac {
-		UUID: uuid.NewString(),
-		Ime: "",
-		Conn: c,
-	}
 }
 
 func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
@@ -35,7 +39,8 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
         if err := igrac.Conn.Close(); err != nil {
             log.Printf("CitajWSPoruke greška: %v\n", err)
         }
-        DiskonektujIgraca(igrac.UUID)
+        log.Printf("Debug: prekinuta konekcija igrac: %v\n", igrac.Username)
+        DiskonektujIgraca(igrac.Username)
         igrac.cetPubSub.Close()
     }()
 
@@ -49,7 +54,7 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
         _, primljenaPoruka, err := igrac.Conn.ReadMessage()
         if err != nil {
             if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-                    log.Printf("citajWSPoruke greška: conn: %v, err: %v\n", igrac.Conn, err)
+                    log.Printf("citajWSPoruke igrač %v, konekcija zatvorena,\n", igrac.Username)
             }
             break
         }
@@ -66,28 +71,81 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
 				soba, err := DodajUSobu(dobijenaPoruka.Sadrzaj, igrac, ctx, rdb)
 				if err != nil {
 					igrac.PosaljiOdgovorWS(poruka.Greska(fmt.Sprintf("Greška prilikom dodavanja u sobu: %v", err)).Marshal())
-					continue
+					return
 				}
+
+				igracPodaciPoruka := poruka.IgracPodaci(igrac.Username, igrac.DatumRodjenja)
+				igrac.PosaljiOdgovorWS(igracPodaciPoruka.Marshal())
+				if igracPodaciPoruka.Tip == "Greska" {
+					return
+				}
+
 				igrac.cetPubSub = rdb.Subscribe(ctx, fmt.Sprintf("soba:%s:cet-pub-sub", soba.UUID))
 				igrac.sobaUUID = soba.UUID
 				go igrac.handleCetPoruke()
 
 				if len(soba.Igraci) == 2 {
-					igrac.PosaljiOdgovorWS(poruka.NovaPoruka("Start", "Igra je počela.").Marshal())
 					go soba.Start()
 				} else {
 					igrac.PosaljiOdgovorWS(poruka.NovaPoruka("Cekanje", "Nema dovoljno igrača za početak igre.").Marshal())
 				}
+
+			case "Igrac_Podaci":
+				var igracPodaci struct {
+					Username string
+					DatumRodjenja time.Time
+				}
+
+				if err := json.Unmarshal([]byte(dobijenaPoruka.Sadrzaj), &igracPodaci); err != nil {
+					log.Printf("Igrac_Podaci Unmarshal greška: %v\n", err)
+					return
+				}
+
+				igrac.Username = igracPodaci.Username
+				igrac.DatumRodjenja = igracPodaci.DatumRodjenja
+
 			case "Cet_Poruka":
-				cetPoruka := poruka.CetPoruka(igrac.Ime , dobijenaPoruka.Sadrzaj)
-				if cetPoruka.Tip == "Greska" {
-					igrac.PosaljiOdgovorWS(cetPoruka.Marshal())
+				cetPorukaSlanje := poruka.CetPoruka(igrac.Username , dobijenaPoruka.Sadrzaj)
+				if cetPorukaSlanje.Tip == "Greska" {
+					igrac.PosaljiOdgovorWS(cetPorukaSlanje.Marshal())
 					continue
 				}
 
-				if err := rdb.Publish(ctx, fmt.Sprintf("soba:%s:cet-pub-sub", igrac.sobaUUID), cetPoruka.Marshal()).Err(); err != nil {
+				if err := rdb.Publish(ctx, fmt.Sprintf("soba:%s:cet-pub-sub", igrac.sobaUUID), cetPorukaSlanje.Marshal()).Err(); err != nil {
 					log.Printf("Greška prilikom slanje poruke u kanal soba:%s:cet-pub-sub: %v\n", igrac.sobaUUID, err)
+					continue
 				}
+
+				cetPorukaRedis := CetPoruka {
+					Vreme: time.Now(),
+					IgracUsername: igrac.Username,
+					Sadrzaj: dobijenaPoruka.Sadrzaj,
+				}
+
+				cetPorukaRedisJSON, err := json.Marshal(cetPorukaRedis)
+				if err != nil {
+					log.Printf("Greška prilikom marshalovanja cetPorukaRedis: %v\n", err)
+					continue
+				}
+
+				hesKljuc := fmt.Sprintf("soba:%s:sve-poruke", igrac.sobaUUID)
+				porukaKljuc := fmt.Sprintf("poruka:%s", uuid.NewString())
+				if err := rdb.HSet(ctx, hesKljuc, porukaKljuc, cetPorukaRedisJSON).Err(); err != nil {
+					log.Printf("Greška prilikom dodavanja poruke u redis bazu podataka: %v\n", err)
+				}
+
+			case "Potez":
+				
+
+			case "Kraj_Igre":
+				soba := UcitajSobuRedisDB(igrac.sobaUUID, ctx, rdb)
+				if soba == nil {
+					log.Fatal("Kraj igre greška.")
+				}
+
+				soba.Broadcast("Kraj_Igre", "")
+				return
+
 			default:
 				igrac.PosaljiOdgovorWS(primljenaPoruka)
 		}

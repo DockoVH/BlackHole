@@ -14,7 +14,7 @@ const signupPrikaz = document.getElementById('signup-prikaz')
 let howToPlay = new HowToPlay(4)
 let igra = new Igra(igraContainer)
 let startPodesavanja = new StartPodesavanja(igra)
-let login = new Login(loginPrikaz)
+let login = new Login(loginPrikaz, igra)
 let signup = new Signup(signupPrikaz)
 
 howToPlay.init(howToPlayPrikaz)

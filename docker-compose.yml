@@ -1,4 +1,14 @@
 services:
+  blackhole:
+    container_name: blackhole_api
+    build: .
+    depends_on:
+      - redis
+    networks:
+      - mreza
+    ports:
+      - 8080:8080
+
   redis:
     container_name: blackhole_redis
     image: redis
@@ -10,15 +20,28 @@ services:
       - mreza
     restart: unless-stopped
 
-  blackhole:
-    container_name: blackhole_api
-    build: .
-    depends_on:
-      - redis
-    networks:
-      - mreza
-    ports:
-      - 8080:8080
+  #cassandra:
+  #  container_name: blackhole_cassandra
+  #  image: cassandra
+  #  ports:
+  #    - 9042:9042
+  #  restart: always
+  #  volumes:
+  #    - ./cassandra_podaci:/var/lib/cassandra
+  #  healthcheck:
+  #    test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra", "-e describe keyspaces"]
+  #    interval: 15s
+  #    timeout: 10s
+  #    retries: 10
+  #cassandra_init:
+  #  container_name: blackhole_cassandra_init
+  #  image: cassandra
+  #  depends_on:
+  #    cassandra:
+  #      condition: service_healthy
+  #  volumes:
+  #    - ./cassandra_init.cql:/schema.cql
+  #  command: /bin/bash -c "echo Učitavanje cassandra keyspace-a && cqlsh -f /schema.cql"
 
 networks:
   mreza:

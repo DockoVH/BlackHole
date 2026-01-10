@@ -9,6 +9,10 @@ export class Igra
         this.cetContainer = document.getElementById('cet')
         this.socket = null
         this.kod = ''
+        this.igrac = {
+            username: "",
+            datumRodjenja: Date.now()
+        }
 
         this.crtajPolja()
     }
@@ -61,18 +65,43 @@ export class Igra
         this.socket.onopen = () => {
             cetInit()
 
-            this.crtajPolja()
-
             this.startPodesavanjaContainer.classList.toggle('hidden', true)
             this.igraPrikazContainer.classList.toggle('hidden', false)
             this.cetContainer.classList.toggle('invisible', false)
 
-            this.socket.send(JSON.stringify({Tip: 'Dodaj_U_Sobu', Sadrzaj: this.kod}))
+            this.socket.send(JSON.stringify({ tip: 'Dodaj_U_Sobu', sadrzaj: this.kod }))
         }
 
         this.socket.onmessage = async (e) => {
             const poruka = JSON.parse(await e.data.text())
-            console.log(poruka)
+
+            switch (poruka.tip) {
+                case 'Igrac_Podaci':
+                    if (this.igrac.username == '')
+                    {
+                        console.log('Promenjen igrac')
+                        this.igrac = JSON.parse(poruka.sadrzaj)
+                    }
+                    else
+                    {
+                        console.log('Nije promenjen igrac')
+                        this.socket.send({ tip: 'Igrac_Podaci', sadrzaj: JSON.stringify(this.igrac) })
+                    } 
+                    break;
+                case 'Start':
+                    alert(poruka.sadrzaj)
+                    this.crtajPolja()
+                    break;
+                case 'Pocetak_Igre':
+                    console.error(poruka.sadrzaj)
+                    break;
+                case 'Kraj_Igre':
+                    this.socket.close()
+                    break;
+                default:
+                    console.log('default:', poruka)
+                    break;
+            }
         }
 
         const cetInit = () => {
@@ -82,7 +111,7 @@ export class Igra
             posaljiDugme.onclick = () => {
                 if (porukaInput.value !== '')
                 {
-                    this.socket.send(JSON.stringify({Tip: 'Cet_Poruka', Sadrzaj: porukaInput.value}))
+                    this.socket.send(JSON.stringify({ tip: 'Cet_Poruka', sadrzaj: porukaInput.value }))
                     porukaInput.value = ''
                 }
             }
@@ -90,7 +119,12 @@ export class Igra
             porukaInput.onkeydown = (e) => {
                 if (e.key == 'Enter' && porukaInput.value !== '')
                 {
-                    this.socket.send(JSON.stringify({Tip: 'Cet_Poruka', Sadrzaj: porukaInput.value}))
+                    this.socket.send(JSON.stringify({ tip: 'Cet_Poruka', sadrzaj: porukaInput.value }))
+                    porukaInput.value = ''
+                }
+                else if (e.key == 'Enter' && porukaInput.value === '')
+                {
+                    this.socket.send(JSON.stringify({ tip: 'Kraj_Igre', sadrzaj: porukaInput.value }))
                     porukaInput.value = ''
                 }
             }

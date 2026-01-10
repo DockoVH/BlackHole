@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
+	"github.com/google/uuid"
 )
 
 const (
@@ -31,6 +32,7 @@ var (
 	aktivniIgraci = make(map[string]*Igrac)
 	aktivniIgraciMux sync.RWMutex
 )
+
 
 type Server struct {
 	port int
@@ -82,10 +84,14 @@ func handleWS(w http.ResponseWriter, r *http.Request, rdb *redis.Client, ctx con
 		return
 	}
 
-	igrac := NoviIgrac(conn)
+	igrac := &Igrac {
+		Username: fmt.Sprintf("gost_%s", uuid.NewString()[0:13]),
+		DatumRodjenja: time.Now(),
+		Conn: conn,
+	}
 
 	aktivniIgraciMux.Lock()
-	aktivniIgraci[igrac.UUID] = igrac
+	aktivniIgraci[igrac.Username] = igrac
 	aktivniIgraciMux.Unlock()
 
 	go igrac.CitajWSPoruke(ctx, rdb)
@@ -105,15 +111,15 @@ func NoviServer() (*http.Server, int) {
 	}, noviServer.port
 }
 
-func NadjiAktivnogIgraca(uuid string) *Igrac {
+func NadjiAktivnogIgraca(username string) *Igrac {
 	aktivniIgraciMux.RLock()
 	defer aktivniIgraciMux.RUnlock()
-	return aktivniIgraci[uuid]
+	return aktivniIgraci[username]
 }
 
-func DiskonektujIgraca(igracUUID string) {
+func DiskonektujIgraca(igracUsername string) {
 	aktivniIgraciMux.Lock()
-	delete(aktivniIgraci, igracUUID)
+	delete(aktivniIgraci, igracUsername)
 	aktivniIgraciMux.Unlock()
-	log.Printf("Igrac sa uuid %v diskonektovan\n", igracUUID)
+	log.Printf("Igrač %v diskonektovan\n", igracUsername)
 }

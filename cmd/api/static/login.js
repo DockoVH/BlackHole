@@ -1,8 +1,9 @@
 export class Login
 {
-    constructor(container)
+    constructor(container, igra)
     {
         this.container = container
+        this.igra = igra
     }
 
     init()
