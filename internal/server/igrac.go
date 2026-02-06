@@ -6,10 +6,14 @@ import (
 	"time"
 	"log"
 	"encoding/json"
+	"strings"
+	"slices"
 
 	"github.com/gorilla/websocket"
 	"github.com/redis/go-redis/v9"
 	"github.com/google/uuid"
+	"github.com/apache/cassandra-gocql-driver/v2"
+	"github.com/texttheater/golang-levenshtein/levenshtein"
 
 	"BlackHole/internal/poruka"
 )
@@ -21,9 +25,9 @@ type CetPoruka struct {
 }
 
 type Potez struct {
-	Vreme time.Time
-	IgracUsername string
-	IndeksPolja int
+	Vreme time.Time `json:"vreme"`
+	IgracUsername string `json:"igrac_username"`
+	IndeksPolja int `json:"indeks_polja"`
 }
 
 type Igrac struct {
@@ -34,14 +38,15 @@ type Igrac struct {
 	sobaUUID string
 }
 
-func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
+func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client, s *gocql.Session) {
 	defer func() {
         if err := igrac.Conn.Close(); err != nil {
             log.Printf("CitajWSPoruke greška: %v\n", err)
         }
-        log.Printf("Debug: prekinuta konekcija igrac: %v\n", igrac.Username)
         DiskonektujIgraca(igrac.Username)
-        igrac.cetPubSub.Close()
+        if igrac.cetPubSub != nil {
+			igrac.cetPubSub.Close()
+		}
     }()
 
 	igrac.Conn.SetReadLimit(maxMessageSize)
@@ -49,6 +54,8 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
         igrac.Conn.SetReadDeadline(time.Now().Add(pongWait))
         return nil
     })
+
+    igraTraje := false
 
     for {
         _, primljenaPoruka, err := igrac.Conn.ReadMessage()
@@ -68,43 +75,78 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
 
 		switch dobijenaPoruka.Tip {
 			case "Dodaj_U_Sobu":
-				soba, err := DodajUSobu(dobijenaPoruka.Sadrzaj, igrac, ctx, rdb)
+				if igraTraje {
+					continue
+				}
+
+				var podaci struct {
+					Kod string `json:"kod"`
+					Username string `json:"username"`
+					DatumRodjenja string `json:"datumRodjenja"`
+				}
+
+				if err := json.Unmarshal([]byte(dobijenaPoruka.Sadrzaj), &podaci); err != nil {
+					log.Printf("Dodaj_U_Sobu Unmarshal greška: %v\n", err)
+					return
+				}
+
+				if podaci.Username != "" {
+					aktivniIgraciMux.Lock()
+
+					delete(aktivniIgraci, igrac.Username)
+					igrac.Username = podaci.Username
+					if datum, err := time.Parse(time.RFC3339, podaci.DatumRodjenja); err != nil {
+						igrac.DatumRodjenja = time.Now()
+					} else {
+						igrac.DatumRodjenja = datum
+					}
+					aktivniIgraci[igrac.Username] = igrac
+
+					aktivniIgraciMux.Unlock()
+				}
+
+				soba, err := DodajUSobu(podaci.Kod, igrac, ctx, rdb)
 				if err != nil {
 					igrac.PosaljiOdgovorWS(poruka.Greska(fmt.Sprintf("Greška prilikom dodavanja u sobu: %v", err)).Marshal())
 					return
 				}
 
+				redniBrojIgraca := 0
+				for i, igrac := range soba.Igraci {
+					if igrac.Username == soba.IgracNaRedu {
+						redniBrojIgraca = i + 1
+					}
+				}
+
+				sobaPodaciPoruka := poruka.SobaPodaci(soba.Kod, soba.IgracNaRedu, redniBrojIgraca)
+				if sobaPodaciPoruka.Tip == "Greska" {
+					return
+				}
+				igrac.PosaljiOdgovorWS(sobaPodaciPoruka.Marshal())
+
 				igracPodaciPoruka := poruka.IgracPodaci(igrac.Username, igrac.DatumRodjenja)
-				igrac.PosaljiOdgovorWS(igracPodaciPoruka.Marshal())
 				if igracPodaciPoruka.Tip == "Greska" {
 					return
 				}
+				igrac.PosaljiOdgovorWS(igracPodaciPoruka.Marshal())
 
 				igrac.cetPubSub = rdb.Subscribe(ctx, fmt.Sprintf("soba:%s:cet-pub-sub", soba.UUID))
 				igrac.sobaUUID = soba.UUID
 				go igrac.handleCetPoruke()
 
+				igraTraje = true
+
 				if len(soba.Igraci) == 2 {
-					go soba.Start()
+					go soba.Start(ctx, rdb)
 				} else {
 					igrac.PosaljiOdgovorWS(poruka.NovaPoruka("Cekanje", "Nema dovoljno igrača za početak igre.").Marshal())
 				}
 
-			case "Igrac_Podaci":
-				var igracPodaci struct {
-					Username string
-					DatumRodjenja time.Time
-				}
-
-				if err := json.Unmarshal([]byte(dobijenaPoruka.Sadrzaj), &igracPodaci); err != nil {
-					log.Printf("Igrac_Podaci Unmarshal greška: %v\n", err)
-					return
-				}
-
-				igrac.Username = igracPodaci.Username
-				igrac.DatumRodjenja = igracPodaci.DatumRodjenja
-
 			case "Cet_Poruka":
+				if !igraTraje {
+					continue
+				}
+
 				cetPorukaSlanje := poruka.CetPoruka(igrac.Username , dobijenaPoruka.Sadrzaj)
 				if cetPorukaSlanje.Tip == "Greska" {
 					igrac.PosaljiOdgovorWS(cetPorukaSlanje.Marshal())
@@ -135,16 +177,27 @@ func (igrac *Igrac) CitajWSPoruke(ctx context.Context, rdb *redis.Client) {
 				}
 
 			case "Potez":
-				
+				var noviPotez Potez
+
+				if err := json.Unmarshal([]byte(dobijenaPoruka.Sadrzaj), &noviPotez); err != nil {
+					log.Printf("Potez Unmarshal greška: %v\n", err)
+					return
+				}
+
+				OdigrajPotez(igrac.sobaUUID, noviPotez.IndeksPolja, noviPotez.IgracUsername, ctx, rdb, s)
 
 			case "Kraj_Igre":
+				if !igraTraje {
+					continue
+				}
+
 				soba := UcitajSobuRedisDB(igrac.sobaUUID, ctx, rdb)
 				if soba == nil {
 					log.Fatal("Kraj igre greška.")
 				}
 
 				soba.Broadcast("Kraj_Igre", "")
-				return
+				igraTraje = false
 
 			default:
 				igrac.PosaljiOdgovorWS(primljenaPoruka)
@@ -171,7 +224,41 @@ func (igrac *Igrac) PosaljiOdgovorWS(wsPoruka []byte) {
 func (igrac *Igrac) handleCetPoruke() {
 	porukaChan := igrac.cetPubSub.Channel()
 
-	for cetPoruka := range porukaChan {
-		igrac.PosaljiOdgovorWS([]byte(cetPoruka.Payload))
+	for primljenaPoruka := range porukaChan {
+		var porukaZaSlanje poruka.Poruka
+        if err := json.Unmarshal([]byte(primljenaPoruka.Payload), &porukaZaSlanje); err != nil {
+			log.Printf("Greška prilikom unmarshal-ovanja cet poruke: %v\n", err)
+		}
+
+		sada := time.Now()
+		datum18Rodjendan := igrac.DatumRodjenja.AddDate(18, 0, 0)
+
+		if sada.Before(datum18Rodjendan) {
+			sadrzaj := strings.ReplaceAll(porukaZaSlanje.Sadrzaj, string(znakoviInterpunkcije[0]), " ")
+			for i := range len(znakoviInterpunkcije) - 1 {
+				sadrzaj = strings.ReplaceAll(sadrzaj,  string(znakoviInterpunkcije[i + 1]), " ")
+			}
+
+			reci := strings.Split(sadrzaj, " ")
+
+			for _, rec := range nepozeljneReci {
+				for i := range reci {
+					if levenshtein.DistanceForStrings([]rune(strings.ToLower(reci[i])), []rune(rec), levenshtein.DefaultOptions) < 3 {
+						reci[i] = strings.Repeat("*", len(reci[i]))
+					}
+				}
+			}
+
+			noviSadrzaj := []byte(strings.Join(reci, " "))
+			for i := range porukaZaSlanje.Sadrzaj {
+				if slices.Contains(znakoviInterpunkcije, porukaZaSlanje.Sadrzaj[i]) {
+					noviSadrzaj[i] = porukaZaSlanje.Sadrzaj[i]
+				}
+			}
+
+			porukaZaSlanje.Sadrzaj = string(noviSadrzaj)
+		}
+
+		igrac.PosaljiOdgovorWS(porukaZaSlanje.Marshal())
 	}
 }

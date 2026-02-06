@@ -33,3 +33,4 @@ go.work.sum
 
 cmd/api/api
 redis_podaci/*
+cassandra_podaci/*

@@ -11,7 +11,7 @@ const startPodesavanjaContainer = document.getElementById('start-podesavanja')
 const loginPrikaz = document.getElementById('login-prikaz')
 const signupPrikaz = document.getElementById('signup-prikaz')
 
-let howToPlay = new HowToPlay(4)
+let howToPlay = new HowToPlay(5)
 let igra = new Igra(igraContainer)
 let startPodesavanja = new StartPodesavanja(igra)
 let login = new Login(loginPrikaz, igra)

@@ -3,11 +3,24 @@ services:
     container_name: blackhole_api
     build: .
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+      cassandra:
+        condition: service_healthy
+      cassandra_init:
+        condition: service_completed_successfully
     networks:
       - mreza
     ports:
       - 8080:8080
+    develop:
+      watch:
+        - action: rebuild
+          path: .
+          ignore:
+            - redis_podaci/
+            - cassandra_podaci/
+            - .git/
 
   redis:
     container_name: blackhole_redis
@@ -19,29 +32,39 @@ services:
     networks:
       - mreza
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  #cassandra:
-  #  container_name: blackhole_cassandra
-  #  image: cassandra
-  #  ports:
-  #    - 9042:9042
-  #  restart: always
-  #  volumes:
-  #    - ./cassandra_podaci:/var/lib/cassandra
-  #  healthcheck:
-  #    test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra", "-e describe keyspaces"]
-  #    interval: 15s
-  #    timeout: 10s
-  #    retries: 10
-  #cassandra_init:
-  #  container_name: blackhole_cassandra_init
-  #  image: cassandra
-  #  depends_on:
-  #    cassandra:
-  #      condition: service_healthy
-  #  volumes:
-  #    - ./cassandra_init.cql:/schema.cql
-  #  command: /bin/bash -c "echo Učitavanje cassandra keyspace-a && cqlsh -f /schema.cql"
+  cassandra:
+    container_name: blackhole_cassandra
+    image: cassandra:latest
+    ports:
+      - 9042:9042
+    restart: always
+    volumes:
+      - ./cassandra_podaci:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra", "-e describe keyspaces"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+    networks:
+      - mreza
+
+  cassandra_init:
+    container_name: blackhole_cassandra_init
+    image: cassandra:latest
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    volumes:
+      - ./cassandra_init.cql:/schema.cql
+    command: /bin/bash -c "echo Učitavanje cassandra keyspace-a && cqlsh cassandra -f /schema.cql"
+    networks:
+      - mreza
 
 networks:
   mreza:

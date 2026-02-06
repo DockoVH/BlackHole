@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="static/style.css"/>
 </head>
 <body class="bg-(--bela)">
-    <div id="how-to-play-prikaz" class="absolute top-0 left-0 hidden z-10 w-screen h-screen">
+    <div id="how-to-play-prikaz" class="hidden absolute top-0 left-0 z-10 w-screen h-screen bg-(--bela)">
         <div class="flex flex-row-reverse h-15">
             <img id="how-to-play-izlaz" src="static/slike/X.png" alt="X" 
                 class="h-10 m-4 hover:h-11 cursor-pointer">
@@ -16,11 +16,12 @@
             <div class="flex justify-center items-center h-[60vh] max-w-[60vw]">
                 <img src="static/slike/how_to_play_1.png" alt="How to play?" id="how-to-play-slika" class="size-full">
             </div>
+            <div id="how-to-play-uputstvo" class="text-gray-500 text-[110%] text-center text-wrap min-h-20 w-[20%] p-1 my-2"></div>
             <div class="flex flex-row w-[60vw]">
-                <div class="h-[22vh] flex justify-center items-center w-full">
-                    <img src="static/slike/strelica.png" alt="Prethodna" id="how-to-play-slika-levo" class="h-95/100 hover:cursor-pointer hover:h-full scale-[-1]">
+                <div class="h-15 flex justify-center items-center w-full">
+                    <img src="static/slike/strelica.png" alt="Prethodna" id="how-to-play-slika-levo" class="invisible h-95/100 hover:cursor-pointer hover:h-full scale-[-1]">
                 </div>
-                <div class="h-[22vh] flex justify-center items-center w-full">
+                <div class="h-15 flex justify-center items-center w-full">
                     <img src="static/slike/strelica.png" alt="Sledeća" id="how-to-play-slika-desno" class="h-95/100 hover:cursor-pointer hover:h-full">
                 </div>
             </div>
@@ -29,7 +30,7 @@
 
     <div id="login-prikaz" class="hidden absolute top-0 left-0 z-10 w-screen h-screen bg-radial-[at_50%_50%] from-gray-400 via-blue-400 to-blue-600 flex justify-center items-center">
         <div class="relative flex-col w-120 h-auto bg-(--bela) rounded-lg border-1 border-gray-200 shadow-xl py-7 px-20">
-            <div id="login-izadji" class="absolute top-0 right-6 text-[500%] text-blue-600 cursor-pointer">˟</div>
+            <div id="login-izadji" class="absolute top-4 right-6 text-[150%] text-blue-600 cursor-pointer">🅇</div>
             <div class="text-center text-[300%]">Prijavi se</div>
             <div class="relative mt-5 mb-1">
                 <input id="login-input-username" required autocomplete="off" type="text" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
@@ -40,7 +41,7 @@
                 </label>
             </div>
             <div id="login-greska-username" class="hidden text-red-600 text-wrap">
-                Unesite gorisničko ime! <br>
+                Unesite korisničko ime! <br>
                 Korisničko ime mora da sadrži između 4 i 12 karaktera!
             </div>
             <div class="relative mt-5 mb-1">
@@ -58,6 +59,7 @@
                 Lozinka mora da sadrži najmanje 8 karaktera, jedno malo slovo, jedno veliko slovo, jedan broj
                 i jedan specijalan karakter (!, , @, #, $, %, &)!
             </div>
+            <div id="login-neuspesna-prijava" class="hidden text-red-600 text-wrap">Korisničko ime ili lozinka nisu ispravni!</div>
             <div id="login-prijavi-se-dugme" class="bg-blue-500 rounded-lg p-5 mt-5 text-center text-white text-xl cursor-pointer">
                 Prijavi se
             </div>
@@ -72,7 +74,7 @@
 
     <div id="signup-prikaz" class="hidden absolute top-0 left-0 z-10 w-screen h-screen bg-radial-[at_50%_50%] from-gray-400 via-blue-400 to-blue-600 flex justify-center items-center">
         <div class="relative flex-col w-120 h-auto bg-(--bela) rounded-lg border-1 border-gray-200 shadow-xl py-7 px-20">
-            <div id="signup-izadji" class="absolute top-0 right-6 text-[500%] text-blue-600 cursor-pointer">˟</div>
+            <div id="signup-izadji" class="absolute top-4 right-6 text-[150%] text-blue-600 cursor-pointer">🅇</div>
             <div class="text-center text-[300%]">Registruj se</div>
             <div class="relative mt-5 mb-1">
                 <input id="signup-input-username" required autocomplete="off" type="text" class="peer border-1 border-blue-600 rounded-lg w-full h-[60px] text-[19px] px-3">
@@ -125,6 +127,8 @@
                 </div>
             </div>
 
+            <div id="signup-registruj-se-greska" class="hidden text-center text-wrap text-red-600"></div>
+
             <div id="signup-registruj-se-dugme" class="bg-blue-500 rounded-lg p-5 mt-5 text-center text-white text-xl cursor-pointer">
                 Registruj se
             </div>
@@ -135,11 +139,14 @@
                 </span>
             </div>
         </div>
+        <div id="signup-uspesno-poruka" class="hidden opacity-0 transition-opacity duration-400 absolute p-3 bottom-5 text-center text-blue-600 bg-(--bela) border-1 border-gray-400 rounded-lg">Korisnik uspešno registrovan!
+            <div id="signup-uspesno-progress-bar" class="h-[1px] bg-blue-600 w-0 transition-all duration-4000"></div>
+        </div>
     </div>
 
     <div class="grid grid-cols-10 grid-rows-10 w-screen h-screen text-center">
-        <div class="col-span-10 row-span-2 flex flex-row drop-shadow-xl/4 pb-2 border-b-1 bordder-gray-400">
-            <div class="w-1/5">1</div>
+        <div class="col-span-10 row-span-2 flex flex-row drop-shadow-xl/4 pb-2 border-b-1 border-gray-400">
+            <div class="w-1/5"></div>
             <div class="flex justify-center w-3/5">
                 <img src="static/slike/naslov.png" alt="Black Hole">
             </div>
@@ -147,18 +154,28 @@
                 <div class="flex justify-center items-center h-4/5">
                     <img src="static/slike/upitnik.png" alt="How to play?" class="h-95/100 cursor-pointer hover:h-full">
                 </div>
-                <span class="h-1/5">How to play?</span>
+                <span class="h-1/5 text-gray-700">How to play?</span>
             </div>
         </div>
 
-        <div class="col-span-2 row-span-7">
+        <div id="korisnik-podaci" class="col-span-2 row-span-7">
+            <div id="start-username-label" class="hidden text-center text-black text-xl">123</div>
             <div id="start-prijavi-se" class="text-center text-(--bela) text-xl cursor-pointer border-1 border-blue-600 rounded-lg mx-10 my-5 py-4 bg-blue-600">Prijavi se</div>
             <div id="start-registruj-se" class="text-center text-(--bela) text-xl cursor-pointer border-1 border-blue-600 rounded-lg mx-10 my-5 py-4 bg-blue-600">Registruj se</div>
+            <div id="start-odjavi-se" class="hidden text-center text-(--bela) text-xl cursor-pointer border-1 border-blue-600 rounded-lg mx-10 my-5 py-4 bg-blue-600">Odjavi se</div>
         </div>
 
-        <div id="igra" class="col-span-6 row-span-7 border-x-1 border-gray-400">
-            <div id="igra-prikaz" class="flex flex-col flex-nowrap justify-center p-4 h-full hidden">
+        <div id="igra-podaci" class="hidden col-span-2 row-span-7">
 
+        </div>
+
+        <div id="igra" class="relative col-span-6 row-span-7 border-x-1 border-gray-400">
+            <div id="igra-prikaz" class="relative hidden flex flex-col flex-nowrap justify-center p-4 h-full">
+
+            </div>
+
+            <div id="cekanje-igraca" class="hidden absolute top-1/2 left-1/2 z-100">
+                <div class="transform -translate-1/2 text-gray-500 text-[300%] animate-bounce">Nema dovoljno igrača za početak igre.</div>
             </div>
 
             <div id="start-podesavanja" class="py-15 flex flex-col justify-around items-center h-full">
@@ -182,27 +199,57 @@
                 </span>
             </div>
 
+            <div id="istorija-igara-prikaz" class="hidden flex flex-col h-full relative overflow-y-scroll pb-3">
+                <div ostaje class="border-b-1 border-gray-400 flex flex-row-reverse h-1/12 p-2 sticky top-0 bg-(--bela)">
+                    <div class="flex justify-center items-center aspect-square">    
+                        <div id="istorija-igara-izlaz" class="text-[150%] text-blue-600 cursor-pointer">🅇</div>
+                    </div>
+                    <div id="istorija-igara-statistika" class="w-full text-left self-center">Ukupno: 15 |
+                        <span class="text-green-500">Pobede: 7</span> |
+                        <span class="text-red-600">Porazi: 6</span> |
+                        <span class="text-black">Nerešene: 2</span>
+                    </div>
+                </div>
+                <div ostaje class="border-b-1 border-gray-400 flex flex-row-reverse justify-end items-center h-1/12 mb-3 p-2 sticky top-0 bg-(--bela)">
+                    <span class="w-1/4">POBEDNIK</span>
+                    <span class="w-1/2"></span>
+                    <span class="w-1/4">KOD SOBE</span>
+                </div>
+            </div>
+
+            <div id="prikazi-igru" class="hidden relative flex flex-col flex-nowrap justify-center p-4 h-full">
+                <div ostaje class="flex flex-row flex-nowrap justify-center h-1/7 p-3">
+                    <div class="flex justify-center items-center w-full">
+                        <img src="static/slike/strelica.png" alt="Prethodni" id="prikazi-igru-prethodni-potez" class="h-95/100 hover:cursor-pointer hover:h-full scale-[-1]">
+                    </div>
+                    <div class="flex justify-center items-center w-full">
+                        <img src="static/slike/strelica.png" alt="Sledeći" id="prikazi-igru-sledeci-potez" class="h-95/100 hover:cursor-pointer hover:h-full">
+                    </div>
+                </div>
+                <div ostaje id="prikazi-igru-izlaz" class="absolute top-4 right-4 text-[150%] text-blue-600 cursor-pointer">🅇</div>
+            </div>
+
             <div id="unesi-kod-dialog-wrapper" class="hidden flex justify-center items-center h-full">
-                <div class="relative w-1/2 border-1 border-blue-600 rounded-lg h-2/5 bg-red-900">
-                    <button id="zatvori-unos-koda-dugme" class="absolute top-1 right-1 border-2 border-blue-600 rounded-full w-7 cursor-pointer">
-                        X
+                <div class="relative w-1/2 border-1 border-blue-600 rounded-lg h-2/5 bg-(--bela)">
+                    <button id="zatvori-unos-koda-dugme" class="absolute top-1 right-1 w-7 cursor-pointer text-blue-600">
+                        🅇
                     </button>
                     <h1 class="bg-transparent text-center pt-1 text-blue-600 text-[300%] h-20">
                         Unesite kod
                     </h1>
-                    <div class="flex flex-row flex-nowrap justify-evenly bg-blue-100 my-6 h-1/5">
+                    <div class="flex flex-row flex-nowrap justify-evenly bg-(--bela) my-6 h-1/5">
                         <input id="1" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
-                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black focus:outline-none focus:border-blue-600">
                         <input id="2" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
-                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black focus:outline-none focus:border-blue-600">
                         <input id="3" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
-                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black focus:outline-none focus:border-blue-600">
                         <input id="4" type="text" maxlength="1" min="0" max="9" size="1" autocomplete="off"
-                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black">
+                            class="text-center text-xl shadow-xl border-2 border-black rounded-lg text-black focus:outline-none focus:border-blue-600">
                     </div>
                     <div class="flex justify-center items-center bg-transparent h-auto">
                         <button id="zapocni-igru-kod-dugme" disabled="true"
-                                class="m-6 p-3 border-1 border-blue-600 rounded-lg text-blue-600 transition-all duration-300 relative cursor-pointer text-center bg-transparent
+                                class="m-6 p-3 border-1 border-blue-600 rounded-lg text-blue-600 transition-all duration-300 relative cursor-pointer text-center bg-transparent overflow-hidden
                                 after:content-[''] after:absolute after:top-1/2 after:left-1/2 after:h-0 after:w-0 after:rounded-full after:bg-blue-600 after:-translate-x-1/2 after:-translate-y-1/2 after:transition-all after:duration-400 after:-z-10
                                 hover:text-white hover:-translate-y-[2px] hover:after:w-screen hover:after:h-screen">
                             Započni igru
@@ -213,7 +260,7 @@
         </div>
 
         <div id="cet" class="col-span-2 row-span-7 flex flex-col-reverse invisible">
-            <div class="flex flex-row flex-nowrap p-2">
+            <div class="flex flex-row flex-nowrap px-2 pb-2">
                 <input type="text" name="cet" class="w-4/5 border-1 border-blue-600 rounded-l-lg">
                 <button id="posalji-poruku-dugme"
                         class="overflow-hidden border-1 border-blue-600 rounded-r-lg text-blue-600 transition-all duration-200 relative cursor-pointer text-center bg-transparent w-1/5
@@ -222,19 +269,12 @@
                     Pošalji
                 </button>
             </div>
-            <div class="mb-2">
-                <div class="text-center text-wrap border-1 border-blue-600 rounded-lg p-2 mx-2 mb-2">
-                    asdasjkldjkl
-                </div>
-                <div class="text-center text-wrap border-1 border-blue-600 rounded-lg p-2 mx-2">
-                    
-                </div>
+            <div class="mb-1">
+
             </div>
         </div>
 
-        <div class="col-span-2 row-span-1 border-t-1 border-t-gray-400">7</div>
-        <div class="col-span-6 row-span-1 border-t-1 border-t-gray-400">8</div>
-        <div class="col-span-2 row-span-1 border-t-1 border-t-gray-400">9</div>
+        <div class="col-span-10 row-span-1 border-t-1 border-t-gray-400"></div>
     </div>
     <script type="module" src="static/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
