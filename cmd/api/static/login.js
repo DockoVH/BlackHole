@@ -64,6 +64,7 @@ export class Login
             passwordInput.classList.toggle('border-red-600', false)
             prikaziLozinku.checked = false
             greskaPasswordPoruka.classList.toggle('hidden', true)
+            neuspesnaPrijavaLabel.classList.toggle('hidden', true)
         }
 
         usernameInput.oninput = (e) => {
@@ -97,7 +98,7 @@ export class Login
             {
                 return
             }
-            
+
             const podaci = {
                 username: usernameInput.value,
                 password: passwordInput.value
@@ -129,7 +130,6 @@ export class Login
                 console.error(err)
                 neuspesnaPrijavaLabel.classList.toggle('hidden', false)
             })
-            
         }
 
         const prijaviSe = async (podaci) => {

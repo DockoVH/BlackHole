@@ -86,7 +86,7 @@ export class StartPodesavanja
         }
 
         istorijaIgaraDugme.onclick = () => {
-            if (this.igra.igrac.username === '')
+            if (this.igra.igrac.username === '' || (this.igra.igrac.username.length > 4 && this.igra.igrac.username.slice(0, 5) === 'gost_'))
             {
                 loginPrikaz.classList.toggle('hidden', false)
                 return

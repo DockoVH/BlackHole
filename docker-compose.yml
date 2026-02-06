@@ -28,7 +28,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redis_podaci:/data
+      - redis_podaci:/data
     networks:
       - mreza
     restart: unless-stopped
@@ -45,7 +45,7 @@ services:
       - 9042:9042
     restart: always
     volumes:
-      - ./cassandra_podaci:/var/lib/cassandra
+      - cassandra_podaci:/var/lib/cassandra
     healthcheck:
       test: ["CMD", "cqlsh", "-u cassandra", "-p cassandra", "-e describe keyspaces"]
       interval: 20s
@@ -61,7 +61,7 @@ services:
       cassandra:
         condition: service_healthy
     volumes:
-      - ./cassandra_init.cql:/schema.cql
+      - ./cassandra_init.cql:/schema.cql:Z
     command: /bin/bash -c "echo Učitavanje cassandra keyspace-a && cqlsh cassandra -f /schema.cql"
     networks:
       - mreza
@@ -69,3 +69,7 @@ services:
 networks:
   mreza:
     driver: bridge
+
+volumes:
+  redis_podaci:
+  cassandra_podaci:

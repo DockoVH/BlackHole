@@ -20,6 +20,7 @@ export class Signup
         const ponoviGreskaPasswordPoruka = document.getElementById('signup-greska-password-ponovi')
         const datumRodjenja = document.getElementById('signup-datum-rodjenja')
         const greskaDatumRodjenja = document.getElementById('signup-greska-datum-rodjenja')
+        const registrujSeGreska = document.getElementById('signup-registruj-se-greska')
         
         const registrujSeDugme = document.getElementById('signup-registruj-se-dugme')
         const izadjiDugme = document.getElementById('signup-izadji')
@@ -43,6 +44,7 @@ export class Signup
             datumRodjenja.value = ''
             datumRodjenja.classList.toggle('border-red-600', false)
             greskaDatumRodjenja.classList.toggle('hidden', true)
+            registrujSeGreska.classList.toggle('hidden', true)
         }
 
         usernameLabel.onclick = () => {
@@ -137,7 +139,6 @@ export class Signup
 
             if (!greska)
             {
-                const registrujSeGreska = document.getElementById('signup-registruj-se-greska')
                 const podaci = {
                     username: usernameInput.value,
                     password: passwordInput.value,
@@ -253,6 +254,7 @@ export class Signup
             datumRodjenja.value = ''
             datumRodjenja.classList.toggle('border-red-600', false)
             greskaDatumRodjenja.classList.toggle('hidden', true)
+            registrujSeGreska.classList.toggle('hidden', true)
         }
     }
 }
